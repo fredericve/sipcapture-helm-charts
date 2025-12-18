@@ -1,25 +1,60 @@
 {{- if .Values.homer.ingress.enabled -}}
+{{- $httpPort := .Values.homer.httpPort -}}
+{{- $pathtype := .Values.homer.ingress.pathtype -}}
+{{- $ingressPath := .Values.homer.ingress.path -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "homer.fullname" . }}
-  {{- if .Values.homer.ingress.annotations }}
+  labels: {{ include "common.labels" . | nindent 4 }}
+{{- with .Values.homer.ingress.annotations }}
   annotations:
-    {{- toYaml .Values.homer.ingress.annotations | nindent 4 }}
-  {{- end }}
-  namespace: {{ dig "global" "monitoring" "namespace" .Release.Namespace (.Values | merge (dict)) | quote }}
-  labels:
-{{ include "common.labels" . | indent 4 }}
-spec:
-  rules:
-    - host: {{ required "hostname for the homer portal" .Values.homer.ingress.hostname }}
-      http:
-        paths:
-        - backend:
-            service:
-              name: {{ include "homer.fullname" . }}
-              port:
-                number: 80
-          path: /
-          pathType: Prefix
+{{ toYaml . | indent 4 }}
 {{- end }}
+spec:
+  {{- if .Values.homer.ingress.className }}
+  ingressClassName: {{ .Values.homer.ingress.className | quote }}
+  {{- end }}
+{{- if .Values.homer.ingress.tls }}
+  tls:
+  {{- if .ingressPath }}
+  {{- range .Values.homer.ingress.tls }}
+  - hosts:
+    {{- range .hosts }}
+      - {{ . }}
+    {{- end }}
+    secretName: {{ .secretName }}
+  {{- end }}
+{{- else }}
+{{ toYaml .Values.homer.ingress.tls | indent 4 }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.homer.ingress.hosts }}
+    {{- if $ingressPath }}
+  - host: {{ . }}
+    http:
+      paths:
+      - path: {{ $ingressPath }}
+        pathType: {{ $pathtype }}
+        backend:
+          service:
+            name: {{ include "homer.fullname" . }}
+            port: 
+              number: {{ $httpPort }}
+  {{- else }}
+  - host: {{ .host }}
+    http:
+      paths:
+      {{- range .paths }}
+      - path: {{ .path }}
+        pathType: {{ $pathtype }}
+        backend:
+          service:
+            name: {{ include "homer.fullname" . }}
+            port:
+              number: {{ .servicePort | default $httpPort }}
+      {{- end }}
+  {{- end }}
+ {{- end }}
+ {{- end }}
