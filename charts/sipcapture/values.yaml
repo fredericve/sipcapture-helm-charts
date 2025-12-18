@@ -1,11 +1,11 @@
 global:
-  create_namespace: false
+  create_namespace: true
   security:
     allowInsecureImages: true
 grafana:
-  installOnCluster: false
+  installOnCluster: true
   ingress:
-    enabled: false # Disable if ingress controller absent or want to deploy using nodeport service only
+    enabled: true # Disable if ingress controller absent or want to deploy using nodeport service only
     annotations:
       kubernetes.io/ingress.class: "nginx"
     hosts:
