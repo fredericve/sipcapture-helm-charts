@@ -1,20 +1,16 @@
 {{- if .Values.homer.ingress.enabled -}}
-{{- $httpPort := .Values.homer.service.ports.http -}}
-{{- $fullName := include "homer.fullname" . -}}
-{{- $svcPort := .Values.homer.service.ports.http -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
-  labels: {{ include "common.labels" . | nindent 4 }}
-  {{- with .Values.homer.ingress.annotations }}
+  name: {{ include "homer.fullname" . }}
+  {{- if .Values.homer.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml .Values.homer.ingress.annotations | nindent 4 }}
   {{- end }}
+  namespace: {{ dig "global" "monitoring" "namespace" .Release.Namespace (.Values | merge (dict)) | quote }}
+  labels:
+{{ include "common.labels" . | indent 4 }}
 spec:
-  {{- if .Values.homer.ingress.className }}
-  ingressClassName: {{ .Values.homer.ingress.className | quote }}
-  {{- end }}
   {{- if .Values.homer.ingress.tls }}
   tls:
     {{- range .Values.homer.ingress.tls }}
@@ -26,18 +22,14 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.homer.ingress.hosts }}
-    - host: {{ .host | quote }}
+    - host: {{ required "hostname for the homer portal" .Values.homer.ingress.hostname }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType | default $.Values.homer.ingress.pathtype | default "ImplementationSpecific" }}
-            backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $httpPort }}
-          {{- end }}
-    {{- end }}
+        - backend:
+            service:
+              name: {{ include "homer.fullname" . }}
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
 {{- end }}
