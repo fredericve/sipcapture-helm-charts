@@ -1,60 +1,43 @@
 {{- if .Values.homer.ingress.enabled -}}
-{{- $httpPort := .Values.homer.httpPort -}}
-{{- $pathtype := .Values.homer.ingress.pathtype -}}
-{{- $ingressPath := .Values.homer.ingress.path -}}
+{{- $httpPort := .Values.homer.service.ports.http -}}
+{{- $fullName := include "homer.fullname" . -}}
+{{- $svcPort := .Values.homer.service.ports.http -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "homer.fullname" . }}
+  name: {{ $fullName }}
   labels: {{ include "common.labels" . | nindent 4 }}
-{{- with .Values.homer.ingress.annotations }}
+  {{- with .Values.homer.ingress.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if .Values.homer.ingress.className }}
   ingressClassName: {{ .Values.homer.ingress.className | quote }}
   {{- end }}
-{{- if .Values.homer.ingress.tls }}
+  {{- if .Values.homer.ingress.tls }}
   tls:
-  {{- if .ingressPath }}
-  {{- range .Values.homer.ingress.tls }}
-  - hosts:
-    {{- range .hosts }}
-      - {{ . }}
+    {{- range .Values.homer.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
     {{- end }}
-    secretName: {{ .secretName }}
   {{- end }}
-{{- else }}
-{{ toYaml .Values.homer.ingress.tls | indent 4 }}
-  {{- end }}
-{{- end }}
   rules:
-  {{- range .Values.homer.ingress.hosts }}
-    {{- if $ingressPath }}
-  - host: {{ . }}
-    http:
-      paths:
-      - path: {{ $ingressPath }}
-        pathType: {{ $pathtype }}
-        backend:
-          service:
-            name: {{ include "homer.fullname" . }}
-            port: 
-              number: {{ $httpPort }}
-  {{- else }}
-  - host: {{ .host }}
-    http:
-      paths:
-      {{- range .paths }}
-      - path: {{ .path }}
-        pathType: {{ $pathtype }}
-        backend:
-          service:
-            name: {{ include "homer.fullname" . }}
-            port:
-              number: {{ .servicePort | default $httpPort }}
-      {{- end }}
-  {{- end }}
- {{- end }}
- {{- end }}
+    {{- range .Values.homer.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType | default $.Values.homer.ingress.pathtype | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $httpPort }}
+          {{- end }}
+    {{- end }}
+{{- end }}
