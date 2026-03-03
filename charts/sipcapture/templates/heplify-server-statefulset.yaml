@@ -17,8 +17,16 @@ spec:
         app:  {{ include "heplify.fullname" . }}
     spec:
       {{- include "heplifyServer.imagePullSecrets" . | nindent 6 }}
+      {{- with .Values.heplifyServer.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: heplify-server
+          {{- with .Values.heplifyServer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.heplifyServer.image.registry }}/{{ .Values.heplifyServer.image.repository }}:{{ .Values.heplifyServer.image.tag }}"
           imagePullPolicy: {{ .Values.heplifyServer.image.pullPolicy }}
           args:
@@ -79,7 +87,10 @@ spec:
               protocol: UDP
             - containerPort: 9096
               protocol: TCP
-          resources: {}
+          {{- with .Values.heplifyServer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - mountPath: /etc/heplify-server.toml
               name: heplify-server-conf

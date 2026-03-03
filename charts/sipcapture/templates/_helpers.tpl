@@ -47,6 +47,16 @@ default-password: {{ if $secret }} {{ index $secret.data "default-password" }} {
 {{- end -}}
 
 {{/*
+PostgreSQL provisioning hostname (falls back to hostname when provisioningHostname is not set)
+This is useful in cases where there's a pgBouncer in front of the postgresql instance and the provisioning
+with the superuser account needs to connect to the database directly, without going through pgBouncer. pgBouncer
+by default does not allow connections to the database with a superuser account.
+*/}}
+{{- define "postgresql.provisioningHostname" -}}
+{{- .Values.postgresql.provisioningHostname | default .Values.postgresql.hostname -}}
+{{- end -}}
+
+{{/*
 Homer pull secrets
 */}}
 {{- define "homer.imagePullSecrets" -}}

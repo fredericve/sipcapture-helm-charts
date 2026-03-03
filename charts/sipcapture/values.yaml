@@ -2,6 +2,7 @@ global:
   create_namespace: true
   security:
     allowInsecureImages: true
+
 grafana:
   installOnCluster: true
   ingress:
@@ -28,12 +29,30 @@ grafana:
     size: 2Gi
 
 heplifyServer:
+  podSecurityContext: {}
+  #  fsGroup: 666
+  #  runAsGroup: 666
+  #  runAsUser: 666
+  securityContext: {}
+  #  capabilities:
+  #    drop:
+  #    - ALL
+  #  readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 666
   image:
     registry: ghcr.io
     repository: sipcapture/heplify-server
     tag: latest
     pullPolicy: IfNotPresent
     pullSecrets: []
+  resources: {}
+  #  limits:
+  #    cpu: 100m
+  #    memory: 250Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 250Mi
   service:
     type: ClusterIP
     ports:
@@ -87,12 +106,30 @@ influxdb:
   storage: 10Gi
 
 homer:
+  podSecurityContext: {}
+  #  fsGroup: 666
+  #  runAsGroup: 666
+  #  runAsUser: 666
+  securityContext: {}
+  #  capabilities:
+  #    drop:
+  #    - ALL
+  #  readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 666
   image:
     registry: ghcr.io
     repository: sipcapture/homer-app
     tag: latest
     pullPolicy: IfNotPresent
     pullSecrets: []
+  resources: {}
+  #  limits:
+  #    cpu: 100m
+  #    memory: 250Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 250Mi
   service:
     type: ClusterIP
     ports:
@@ -111,8 +148,7 @@ homer:
   ingress:
     enabled: true # Disable if ingress controller absent or want to deploy using nodeport service only
     hostname: webapp.myimaginaryhost.com
-    annotations:
-      kubernetes.io/ingress.class: "nginx"
+    ingressClassName: nginx
     #tls: []
     #  - secretName: chart-example-tls
     #    hosts:
@@ -146,6 +182,11 @@ postgresql:
     postgresPassword: "homerSeven"
     persistence:
       size: 30Gi
+  # possible values of sslmode: disable, allow, prefer, require, verify-ca, verify-full
+  sslmode: disable
+  # hostname: clustername-pgbouncer.namespace.svc.cluster.local
+  # To use a different hostname for provisioning tasks that require superuser privileges which are not allowed on pgbouncer
+  # provisioningHostname: clusterName-primary.namespace.svc.cluster.local
 
 telegraf:
   installOnCluster: true
