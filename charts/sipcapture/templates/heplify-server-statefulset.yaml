@@ -82,6 +82,10 @@ spec:
               value: {{ .Values.heplifyServer.config.dbUsageScheme | quote }}
             - name: HEPLIFYSERVER_DBWORKER
               value: {{ .Values.heplifyServer.config.dbWorker | quote }}
+            - name: HEPLIFYSERVER_LOGLVL
+              value: {{ .Values.heplifyServer.config.logLevel | quote }}
+            - name: HEPLIFYSERVER_LOGDBG
+              value: {{ .Values.heplifyServer.config.logDbg | quote }}
           ports:
             - containerPort: 9060
               protocol: UDP

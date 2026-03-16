@@ -43,7 +43,7 @@ heplifyServer:
   image:
     registry: ghcr.io
     repository: sipcapture/heplify-server
-    tag: latest
+    tag: 1.60.1
     pullPolicy: IfNotPresent
     pullSecrets: []
   resources: {}
@@ -93,6 +93,10 @@ heplifyServer:
     dbUsageProtection: false
     dbUsageScheme: "percentage"
     dbWorker: 8
+    # critical, error, warning, info, debug
+    logLevel: "info"
+    # comma separated subsystems, e.g. "hep,sql,loki", or "*" for all of it
+    logDbg: ""
 
 influxdb:
   installOnCluster: true
@@ -120,7 +124,7 @@ homer:
   image:
     registry: ghcr.io
     repository: sipcapture/homer-app
-    tag: latest
+    tag: 1.5.15
     pullPolicy: IfNotPresent
     pullSecrets: []
   resources: {}

@@ -50,8 +50,8 @@ data:
     AlegIDs               = ["X-CID"]
     CustomHeader          = ["X-Application-Sid", "X-Originating-Carrier", "X-MS-Teams-Tenant-FQDN", "X-Authenticated-User"]
     SIPHeader             = []
-    LogDbg                = ""
-    LogLvl                = "info"
+    LogDbg                = "{{ .Values.heplifyServer.config.logDbg }}"
+    LogLvl                = "{{ .Values.heplifyServer.config.logLevel }}"
     LogStd                = true
     LogSys                = false
     Config                = "./heplify-server.toml"
