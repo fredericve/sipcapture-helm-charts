@@ -40,6 +40,9 @@ heplifyServer:
   #  readOnlyRootFilesystem: true
   #  runAsNonRoot: true
   #  runAsUser: 666
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   image:
     registry: ghcr.io
     repository: sipcapture/heplify-server
@@ -108,6 +111,9 @@ influxdb:
     pullSecrets: []
   loglevel: info
   storage: 10Gi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 homer:
   podSecurityContext: {}
@@ -121,6 +127,9 @@ homer:
   #  readOnlyRootFilesystem: true
   #  runAsNonRoot: true
   #  runAsUser: 666
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   image:
     registry: ghcr.io
     repository: sipcapture/homer-app
@@ -200,3 +209,6 @@ telegraf:
     tag: 1.19
     pullPolicy: IfNotPresent
     pullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
