@@ -100,6 +100,21 @@ heplifyServer:
     logLevel: "info"
     # comma separated subsystems, e.g. "hep,sql,loki", or "*" for all of it
     logDbg: ""
+    # SIP methods to discard, e.g. ["OPTIONS","SUBSCRIBE","NOTIFY"]
+    discardMethod: []
+    # Deduplicate HEP packets
+    dedup: false
+    # A-leg correlation IDs
+    alegIDs:
+      - "X-CID"
+    # Custom SIP headers to extract
+    customHeader:
+      - "X-Application-Sid"
+      - "X-Originating-Carrier"
+      - "X-MS-Teams-Tenant-FQDN"
+      - "X-Authenticated-User"
+    # SIP header fields to index
+    sipHeader: []
 
 influxdb:
   installOnCluster: true
